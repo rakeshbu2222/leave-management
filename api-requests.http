@@ -1,0 +1,62 @@
+### 1. Get all employees
+GET http://localhost:8080/api/employees
+
+### 2. Create employee (success -> 201)
+POST http://localhost:8080/api/employees
+Content-Type: application/json
+
+{
+  "name": "Nikhil",
+  "email": "nikhil@company.com",
+  "department": "Engineering"
+}
+
+### 3. Create employee (validation error -> 400)  
+POST http://localhost:8080/api/employees
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "not-an-email",
+  "department": ""
+}
+
+### 4. Get employee that does not exist (-> 404)
+GET http://localhost:8080/api/employees/999
+
+### 5. Apply leave (change dates to future dates!)
+POST http://localhost:8080/api/leaves
+Content-Type: application/json
+
+{
+  "employeeId": 1,
+  "startDate": "2026-12-01",
+  "endDate": "2026-12-03",
+  "reason": "Family function"
+}
+
+### 6. Apply leave with too many days (-> 400 Insufficient leave balance)
+POST http://localhost:8080/api/leaves
+Content-Type: application/json
+
+{
+  "employeeId": 1,
+  "startDate": "2026-12-01",
+  "endDate": "2026-12-31",
+  "reason": "Long vacation"
+}
+
+### 7. List all leaves
+GET http://localhost:8080/api/leaves
+
+### 8. List leaves of one employee
+GET http://localhost:8080/api/leaves?employeeId=1
+
+### 9. Approve leave 1
+PUT http://localhost:8080/api/leaves/1/approve
+
+### 10. Approve leave 1 AGAIN (-> 400 Only PENDING leave can be updated)
+PUT http://localhost:8080/api/leaves/1/approve
+
+### 11. Reject a leave
+PUT http://localhost:8080/api/leaves/2/reject
