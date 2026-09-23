@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// Change made in conflict-practice branch
+
 /**
  * One central place that converts Java exceptions into clean JSON error responses.
  * Without this, controllers would need try/catch everywhere and errors would look different on every API.
