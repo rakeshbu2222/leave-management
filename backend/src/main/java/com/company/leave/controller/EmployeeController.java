@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// Employee-related REST APIs
 
 /**
  * Controller = HTTP layer only. Receives request, validates it (@Valid), calls service, returns response.
