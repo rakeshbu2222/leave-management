@@ -42,11 +42,6 @@ public class LeaveRequest {
     @Column(nullable = false, length = 20)
     private LeaveStatus status = LeaveStatus.PENDING;
 
-
-    // @Enumerated(EnumType.STRING)
-    // @Column(nullable = false, length = 20)
-    // private LeaveStatus status = LeaveStatus.PENDING;
-
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
