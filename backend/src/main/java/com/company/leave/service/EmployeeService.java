@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Service layer = business logic lives here (rules, checks, calculations).
@@ -29,19 +31,33 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
-    @Transactional
-    public EmployeeResponse create(EmployeeRequest request) {
-        log.info("Creating employee with email={}", request.email());
 
-        if (employeeRepository.existsByEmail(request.email())) {
-            throw new BusinessException("Employee with email " + request.email() + " already exists");
+  @Transactional
+    public EmployeeResponse create(EmployeeRequest request) {
+        String email = normalizeEmail(request.email());
+        log.info("Creating employee with email={}", email);
+
+        if (employeeRepository.existsByEmail(email)) {
+            throw new BusinessException(
+                    "Employee with email " + email + " already exists"
+            );
         }
 
-        Employee employee = new Employee(request.name(), request.email(), request.department());
+        Employee employee = new Employee(
+                request.name(),
+                email,
+                request.department()
+        );
+
         Employee saved = employeeRepository.save(employee);
 
         log.info("Employee created id={}", saved.getId());
         return EmployeeResponse.from(saved);
+    }
+    
+    /** Emails are case-insensitive: always compare and store them trimmed and lowercase. */
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 
     @Transactional(readOnly = true)
