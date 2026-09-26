@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 /**
  * One leave application. Many leave requests belong to one employee (@ManyToOne).
  */
@@ -34,6 +37,7 @@ public class LeaveRequest {
     private String reason;
 
     // Store enum as text ("PENDING") not number (0) - safer if enum order changes
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private LeaveStatus status = LeaveStatus.PENDING;
