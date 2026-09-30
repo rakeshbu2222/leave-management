@@ -6,9 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,6 +51,36 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleBadJson(HttpMessageNotReadableException ex) {
         return build(HttpStatus.BAD_REQUEST, "Malformed request body", List.of());
+    }
+
+    /** Fired when a path/query value can't be converted, e.g. /api/employees/abc for a Long id. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String expected = ex.getRequiredType() != null
+                ? ex.getRequiredType().getSimpleName()
+                : "a valid value";
+
+        String message = "Invalid value '" + ex.getValue()
+                + "' for parameter '" + ex.getName()
+                + "'. Expected " + expected;
+
+        log.warn("Bad request parameter: {}", message);
+
+        return build(HttpStatus.BAD_REQUEST, message, List.of());
+    }
+
+    /** Fired when the URL exists but not for this HTTP method, e.g. POST on an approve endpoint. */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex) {
+
+        log.warn("Method not allowed: {}", ex.getMessage());
+
+        return build(
+                HttpStatus.METHOD_NOT_ALLOWED,
+                "HTTP method " + ex.getMethod() + " is not supported for this URL",
+                List.of()
+        );
     }
 
     /** Safety net. Log full stack trace, but never show internal details to the client. */
