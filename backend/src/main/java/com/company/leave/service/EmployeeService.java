@@ -47,6 +47,8 @@ public class EmployeeService {
                 request.department()
         );
 
+        employee.setPhoneNumber(request.phoneNumber());
+
         Employee saved = employeeRepository.save(employee);
 
         log.info("Employee created id={}", saved.getId());
