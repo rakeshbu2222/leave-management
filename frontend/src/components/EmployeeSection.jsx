@@ -13,7 +13,7 @@ export default function EmployeeSection({ employees, runAction }) {
   async function handleSubmit(e) {
     e.preventDefault();
     const payload = { ...form, phoneNumber: form.phoneNumber.trim() || null };
-    const ok = await runAction(() => api.createEmployee(form), 'Employee added');
+    const ok = await runAction(() => api.createEmployee(payload), 'Employee added');
     if (ok) setForm(emptyForm);
   }
 
