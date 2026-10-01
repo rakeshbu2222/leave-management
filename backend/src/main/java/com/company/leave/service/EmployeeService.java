@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.util.List;
 import java.util.Locale;
 
@@ -31,8 +30,7 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
-
-  @Transactional
+    @Transactional
     public EmployeeResponse create(EmployeeRequest request) {
         String email = normalizeEmail(request.email());
         log.info("Creating employee with email={}", email);
@@ -54,7 +52,7 @@ public class EmployeeService {
         log.info("Employee created id={}", saved.getId());
         return EmployeeResponse.from(saved);
     }
-    
+
     /** Emails are case-insensitive: always compare and store them trimmed and lowercase. */
     private String normalizeEmail(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
