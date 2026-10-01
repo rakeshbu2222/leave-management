@@ -74,18 +74,14 @@ class LeaveFlowIntegrationTest {
     }
 
     @Test
-        void createEmployee_sameEmailDifferentCase_returns400() throws Exception {
+    void createEmployee_sameEmailDifferentCase_returns400() throws Exception {
         String body = """
                 {"name": "Another", "email": "Test@Company.COM", "department": "QA"}
                 """;
-
-        mockMvc.perform(post("/api/employees")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
+        mockMvc.perform(post("/api/employees").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message")
-                        .value("Employee with email test@company.com already exists"));
+                .andExpect(jsonPath("$.message").value("Employee with email test@company.com already exists"));
 
         assertThat(employeeRepository.count()).isEqualTo(1);
-        }
+    }
 }

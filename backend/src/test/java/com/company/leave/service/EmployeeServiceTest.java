@@ -65,42 +65,25 @@ class EmployeeServiceTest {
     }
 
     @Test
-void create_mixedCaseEmailWithSpaces_savesTrimmedLowercase() {
-    EmployeeRequest request =
-            new EmployeeRequest(
-                    "Ravi",
-                    "  Ravi@Company.COM ",
-                    "Engineering"
-            );
+    void create_mixedCaseEmailWithSpaces_savesTrimmedLowercase() {
+        EmployeeRequest request = new EmployeeRequest("Ravi", "  Ravi@Company.COM ", "Engineering");
+        when(employeeRepository.existsByEmail("ravi@company.com")).thenReturn(false);
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    when(employeeRepository.existsByEmail("ravi@company.com"))
-            .thenReturn(false);
+        EmployeeResponse response = employeeService.create(request);
 
-    when(employeeRepository.save(any(Employee.class)))
-            .thenAnswer(inv -> inv.getArgument(0));
+        assertThat(response.email()).isEqualTo("ravi@company.com");
+    }
 
-    EmployeeResponse response = employeeService.create(request);
+    @Test
+    void create_sameEmailDifferentCase_throwsBusinessException() {
+        EmployeeRequest request = new EmployeeRequest("Ravi", "RAVI@Company.com", "Engineering");
+        when(employeeRepository.existsByEmail("ravi@company.com")).thenReturn(true);
 
-    assertThat(response.email())
-            .isEqualTo("ravi@company.com");
-}
-@Test
-void create_sameEmailDifferentCase_throwsBusinessException() {
-    EmployeeRequest request =
-            new EmployeeRequest(
-                    "Ravi",
-                    "RAVI@Company.com",
-                    "Engineering"
-            );
+        assertThatThrownBy(() -> employeeService.create(request))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("already exists");
+        verify(employeeRepository, never()).save(any());
+    }
 
-    when(employeeRepository.existsByEmail("ravi@company.com"))
-            .thenReturn(true);
-
-    assertThatThrownBy(() -> employeeService.create(request))
-            .isInstanceOf(BusinessException.class)
-            .hasMessageContaining("already exists");
-
-    verify(employeeRepository, never())
-            .save(any());
-}
 }
