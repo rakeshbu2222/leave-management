@@ -64,7 +64,7 @@ class EmployeeServiceTest {
                 .hasMessage("Employee not found with id 42");
     }
 
-       @Test
+    @Test
     void create_mixedCaseEmailWithSpaces_savesTrimmedLowercase() {
         EmployeeRequest request = new EmployeeRequest("Ravi", "  Ravi@Company.COM ", "Engineering");
         when(employeeRepository.existsByEmail("ravi@company.com")).thenReturn(false);

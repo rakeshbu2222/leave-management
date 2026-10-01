@@ -73,7 +73,7 @@ class LeaveFlowIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
-       @Test
+    @Test
     void createEmployee_sameEmailDifferentCase_returns400() throws Exception {
         String body = """
                 {"name": "Another", "email": "Test@Company.COM", "department": "QA"}
