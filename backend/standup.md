@@ -62,3 +62,52 @@
 
 ### Blockers
 - None.
+
+## Day 6 — LM-104: Get Leave by ID + Update Employee
+
+### Yesterday
+
+* Continued LM-102 employee phone number implementation.
+* Added and verified `phoneNumber` changes across the employee DTO, entity and application flow.
+* Addressed LM-102 review comments.
+* Verified the LM-102 branch is pushed to the remote repository.
+
+### Today
+
+* Verify and complete the LM-102 merge into `main` before starting LM-104.
+* Create branch `feature/LM-104-get-leave-update-employee`.
+* Implement `GET /api/leaves/{id}`:
+
+  * Return `200` when the leave exists.
+  * Return `404` when the leave does not exist.
+  * Refactor the existing leave lookup into reusable `findLeave()`.
+  * Use `@Transactional(readOnly = true)` to handle the lazy-loaded employee safely.
+* Implement `PUT /api/employees/{id}`:
+
+  * Update name, email, department and phone number.
+  * Reuse existing validation.
+  * Normalize email by trimming spaces and converting it to lowercase.
+  * Prevent duplicate email while allowing an employee to keep their own email.
+  * Return `404` for an unknown employee ID.
+  * Preserve `id` and `leaveBalance`.
+* Add unit and integration tests.
+* Run `mvn clean test` and verify all **37 tests pass**.
+* Perform Swagger and MySQL manual verification.
+* Add the required PUT-without-phoneNumber experiment result to the PR notes.
+* Push the LM-104 branch and open a PR without merging.
+
+### Blockers
+
+* LM-102 currently needs to be merged into `main` before LM-104 can be branched from the updated `main`.
+* No other blocker currently identified.
+
+### Expected Outcome
+
+* `GET /api/leaves/{id}` implemented and tested.
+* `PUT /api/employees/{id}` implemented and tested.
+* Existing approve/reject behavior remains unchanged.
+* All **37 tests** pass.
+* Swagger and MySQL verification completed.
+* LM-104 branch pushed and PR opened for review without merging.
+
+

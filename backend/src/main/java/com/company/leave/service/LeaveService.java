@@ -76,6 +76,11 @@ public class LeaveService {
         return leaves.stream().map(LeaveResponse::from).toList();
     }
 
+    @Transactional(readOnly = true)
+    public LeaveResponse getById(Long leaveId) {
+        return LeaveResponse.from(findLeave(leaveId));
+    }
+
     /**
      * @Transactional: status update + balance deduction happen together.
      * If anything fails in between, BOTH are rolled back. Balance never gets out of sync.
@@ -107,9 +112,13 @@ public class LeaveService {
         return LeaveResponse.from(leave);
     }
 
-    private LeaveRequest findPendingLeave(Long leaveId) {
-        LeaveRequest leave = leaveRepository.findById(leaveId)
+    private LeaveRequest findLeave(Long leaveId) {
+        return leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave request not found with id " + leaveId));
+    }
+
+    private LeaveRequest findPendingLeave(Long leaveId) {
+        LeaveRequest leave = findLeave(leaveId);
         if (leave.getStatus() != LeaveStatus.PENDING) {
             throw new BusinessException("Only PENDING leave can be updated. Current status: " + leave.getStatus());
         }

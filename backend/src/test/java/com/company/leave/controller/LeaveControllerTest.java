@@ -173,4 +173,26 @@ class LeaveControllerTest {
                 )
                 .andExpect(status().isMethodNotAllowed());
     }
+
+    @Test
+    void getById_existingLeave_returns200() throws Exception {
+        LocalDate start = LocalDate.now().plusDays(1);
+        LeaveResponse response = new LeaveResponse(10L, 1L, "Ravi", start, start.plusDays(1), 2,
+                "Trip", LeaveStatus.PENDING, LocalDateTime.now());
+        when(leaveService.getById(10L)).thenReturn(response);
+
+        mockMvc.perform(get("/api/leaves/10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10))
+                .andExpect(jsonPath("$.employeeName").value("Ravi"));
+    }
+
+    @Test
+    void getById_unknownLeave_returns404() throws Exception {
+        when(leaveService.getById(99L)).thenThrow(new ResourceNotFoundException("Leave request not found with id 99"));
+
+        mockMvc.perform(get("/api/leaves/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Leave request not found with id 99"));
+    }
 }

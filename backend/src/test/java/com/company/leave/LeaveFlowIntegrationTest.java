@@ -115,4 +115,43 @@ class LeaveFlowIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Validation failed"))
                 .andExpect(jsonPath("$.details[0]").value("phoneNumber: Phone number must be exactly 10 digits"));
     }
+
+    @Test
+    void updateEmployee_validBody_returns200AndPersists() throws Exception {
+        String body = """
+                {"name": "Test User Updated", "email": "TEST@company.com", "department": "Platform", "phoneNumber": "9876543210"}
+                """;
+        mockMvc.perform(put("/api/employees/" + employee.getId())
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Test User Updated"))
+                .andExpect(jsonPath("$.email").value("test@company.com"));
+
+        Employee reloaded = employeeRepository.findById(employee.getId()).orElseThrow();
+        assertThat(reloaded.getDepartment()).isEqualTo("Platform");
+        assertThat(reloaded.getPhoneNumber()).isEqualTo("9876543210");
+        assertThat(reloaded.getLeaveBalance()).isEqualTo(20);
+    }
+
+    @Test
+    void updateEmployee_emailOfAnotherEmployee_returns400() throws Exception {
+        employeeRepository.save(new Employee("Other", "other@company.com", "QA"));
+        String body = """
+                {"name": "Test User", "email": "other@company.com", "department": "QA"}
+                """;
+        mockMvc.perform(put("/api/employees/" + employee.getId())
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Employee with email other@company.com already exists"));
+    }
+
+    @Test
+    void updateEmployee_unknownId_returns404() throws Exception {
+        String body = """
+                {"name": "Nobody", "email": "nobody@company.com", "department": "QA"}
+                """;
+        mockMvc.perform(put("/api/employees/999999")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isNotFound());
+    }
 }

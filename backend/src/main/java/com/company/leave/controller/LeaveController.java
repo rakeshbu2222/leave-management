@@ -33,6 +33,12 @@ public class LeaveController {
         return leaveService.getLeaves(employeeId);
     }
 
+    // GET /api/leaves/10
+    @GetMapping("/{id}")
+    public LeaveResponse getById(@PathVariable Long id) {
+        return leaveService.getById(id);
+    }
+
     // PUT /api/leaves/10/approve
     @PutMapping("/{id}/approve")
     public LeaveResponse approve(@PathVariable Long id) {
