@@ -2,8 +2,8 @@ package com.company.leave.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 /**
  * DTO = what the client SENDS to create an employee.
@@ -23,7 +23,7 @@ public record EmployeeRequest(
         @NotBlank(message = "Department is required")
         String department,
 
-        @Pattern( regexp = "\\d{10}", message = "Phone number must be exactly 10 digits" )
+        @Pattern(regexp = "\\d{10}", message = "Phone number must be exactly 10 digits")
         String phoneNumber
 ) {
 }
