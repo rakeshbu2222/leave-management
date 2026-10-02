@@ -26,7 +26,7 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    // POST /api/employees  -> 201 Created
+    // POST /api/employees    -> 201 Created
     @PostMapping
     public ResponseEntity<EmployeeResponse> create(@Valid @RequestBody EmployeeRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.create(request));
@@ -42,5 +42,11 @@ public class EmployeeController {
     @GetMapping("/{id}")
     public EmployeeResponse getById(@PathVariable Long id) {
         return employeeService.getById(id);
+    }
+
+    // PUT /api/employees/5
+    @PutMapping("/{id}")
+    public EmployeeResponse update(@PathVariable Long id, @Valid @RequestBody EmployeeRequest request) {
+        return employeeService.update(id, request);
     }
 }

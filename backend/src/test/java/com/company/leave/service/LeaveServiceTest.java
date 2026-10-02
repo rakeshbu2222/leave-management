@@ -156,4 +156,31 @@ class LeaveServiceTest {
         leave.setStatus(LeaveStatus.PENDING);
         return leave;
     }
+
+    // ---------- getById ----------
+
+    @Test
+    void getById_existingLeave_returnsLeave() {
+        LeaveRequest leave = new LeaveRequest();
+        leave.setId(100L);
+        leave.setEmployee(employee);
+        leave.setDays(3);
+        leave.setStatus(LeaveStatus.APPROVED);
+        when(leaveRepository.findById(100L)).thenReturn(Optional.of(leave));
+
+        LeaveResponse response = leaveService.getById(100L);
+
+        assertThat(response.id()).isEqualTo(100L);
+        assertThat(response.employeeName()).isEqualTo("Ravi");
+        assertThat(response.status()).isEqualTo(LeaveStatus.APPROVED);
+    }
+
+    @Test
+    void getById_unknownLeave_throwsNotFound() {
+        when(leaveRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> leaveService.getById(99L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Leave request not found with id 99");
+    }
 }

@@ -96,5 +96,45 @@ class EmployeeServiceTest {
 
         assertThat(response.phoneNumber()).isEqualTo("9876543210");
     }
+    
+    @Test
+    void update_validRequest_updatesFieldsWithoutCallingSave() {
+        Employee existing = new Employee("Ravi", "ravi@company.com", "Engineering");
+        existing.setId(1L);
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(employeeRepository.existsByEmailAndIdNot("ravi.k@company.com", 1L)).thenReturn(false);
 
+        EmployeeResponse response = employeeService.update(1L,
+                new EmployeeRequest("Ravi Kumar", " Ravi.K@Company.com ", "Platform", "9876543210"));
+
+        assertThat(response.name()).isEqualTo("Ravi Kumar");
+        assertThat(response.email()).isEqualTo("ravi.k@company.com");
+        assertThat(response.department()).isEqualTo("Platform");
+        assertThat(response.phoneNumber()).isEqualTo("9876543210");
+        assertThat(response.leaveBalance()).isEqualTo(20);
+        verify(employeeRepository, never()).save(any());
+    }
+
+    @Test
+    void update_emailUsedByAnotherEmployee_throwsBusinessException() {
+        Employee existing = new Employee("Ravi", "ravi@company.com", "Engineering");
+        existing.setId(1L);
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(employeeRepository.existsByEmailAndIdNot("priya@company.com", 1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> employeeService.update(1L,
+                new EmployeeRequest("Ravi", "priya@company.com", "Engineering", null)))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("already exists");
+        assertThat(existing.getEmail()).isEqualTo("ravi@company.com");
+    }
+
+    @Test
+    void update_unknownId_throwsNotFound() {
+        when(employeeRepository.findById(42L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> employeeService.update(42L,
+                new EmployeeRequest("Ravi", "ravi@company.com", "Engineering", null)))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
 }

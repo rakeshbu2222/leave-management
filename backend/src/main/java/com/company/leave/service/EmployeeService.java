@@ -55,6 +55,25 @@ public class EmployeeService {
         return EmployeeResponse.from(saved);
     }
 
+    @Transactional
+    public EmployeeResponse update(Long id, EmployeeRequest request) {
+        Employee employee = findEmployee(id);
+        String email = normalizeEmail(request.email());
+
+        if (employeeRepository.existsByEmailAndIdNot(email, id)) {
+            throw new BusinessException("Employee with email " + email + " already exists");
+        }
+
+        employee.setName(request.name());
+        employee.setEmail(email);
+        employee.setDepartment(request.department());
+        employee.setPhoneNumber(request.phoneNumber());
+        // No save(): the entity was loaded inside this transaction, so dirty checking writes the UPDATE on commit
+
+        log.info("Employee updated id={}", id);
+        return EmployeeResponse.from(employee);
+    }
+
     /** Emails are case-insensitive: always compare and store them trimmed and lowercase. */
     private String normalizeEmail(String email) {
         return email.trim().toLowerCase(Locale.ROOT);

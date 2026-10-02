@@ -12,4 +12,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     // SELECT count(*) > 0 FROM employees WHERE email = ?
     boolean existsByEmail(String email);
+    
+    // SELECT count(*) > 0 FROM employees WHERE email = ? AND id <> ?
+    boolean existsByEmailAndIdNot(String email, Long id);
 }
