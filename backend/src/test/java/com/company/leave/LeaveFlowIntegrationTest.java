@@ -84,4 +84,35 @@ class LeaveFlowIntegrationTest {
 
         assertThat(employeeRepository.count()).isEqualTo(1);
     }
+
+    @Test
+    void createEmployee_withValidPhone_returns201WithPhone() throws Exception {
+        String body = """
+                {"name": "Asha", "email": "asha@company.com", "department": "QA", "phoneNumber": "9876543210"}
+                """;
+        mockMvc.perform(post("/api/employees").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.phoneNumber").value("9876543210"));
+    }
+
+    @Test
+    void createEmployee_withoutPhone_returns201WithNullPhone() throws Exception {
+        String body = """
+                {"name": "Asha", "email": "asha@company.com", "department": "QA"}
+                """;
+        mockMvc.perform(post("/api/employees").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.phoneNumber").doesNotExist());
+    }
+
+    @Test
+    void createEmployee_invalidPhone_returns400() throws Exception {
+        String body = """
+                {"name": "Asha", "email": "asha@company.com", "department": "QA", "phoneNumber": "12345"}
+                """;
+        mockMvc.perform(post("/api/employees").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.details[0]").value("phoneNumber: Phone number must be exactly 10 digits"));
+    }
 }

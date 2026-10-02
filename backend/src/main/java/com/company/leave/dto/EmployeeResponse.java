@@ -8,10 +8,11 @@ public record EmployeeResponse(
         String name,
         String email,
         String department,
-        Integer leaveBalance
+        Integer leaveBalance,
+        String phoneNumber
 ) {
     /** Converts entity -> DTO. (Big projects often use MapStruct for this.) */
     public static EmployeeResponse from(Employee e) {
-        return new EmployeeResponse(e.getId(), e.getName(), e.getEmail(), e.getDepartment(), e.getLeaveBalance());
+        return new EmployeeResponse(e.getId(), e.getName(), e.getEmail(), e.getDepartment(), e.getLeaveBalance(), e.getPhoneNumber());
     }
 }

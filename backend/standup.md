@@ -45,3 +45,20 @@
 ### Blockers
 
 * None.
+
+---
+
+## Day 5 — LM-102
+
+### Yesterday
+- Merged the LM-105/LM-107 cleanup PR.
+
+### Today
+- Added V2 Flyway migration for the optional `phone_number` column.
+- Added phoneNumber to Employee, EmployeeRequest (@Pattern 10 digits), EmployeeResponse, service and UI.
+- 4 existing unit tests failed to compile (record constructor changed); fixed by passing null.
+- Added 4 new tests; 27 tests passing.
+- Verified V2 on MySQL (flyway_schema_history shows versions 1 and 2).
+
+### Blockers
+- None.

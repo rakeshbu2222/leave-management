@@ -30,7 +30,7 @@ class EmployeeServiceTest {
 
     @Test
     void create_newEmail_savesEmployeeWithDefaultBalance() {
-        EmployeeRequest request = new EmployeeRequest("Ravi", "ravi@company.com", "Engineering");
+        EmployeeRequest request = new EmployeeRequest("Ravi", "ravi@company.com", "Engineering", null);
         when(employeeRepository.existsByEmail("ravi@company.com")).thenReturn(false);
         when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> {
             Employee e = inv.getArgument(0);
@@ -46,7 +46,7 @@ class EmployeeServiceTest {
 
     @Test
     void create_duplicateEmail_throwsBusinessException() {
-        EmployeeRequest request = new EmployeeRequest("Ravi", "ravi@company.com", "Engineering");
+        EmployeeRequest request = new EmployeeRequest("Ravi", "ravi@company.com", "Engineering", null);
         when(employeeRepository.existsByEmail("ravi@company.com")).thenReturn(true);
 
         assertThatThrownBy(() -> employeeService.create(request))
@@ -66,7 +66,7 @@ class EmployeeServiceTest {
 
     @Test
     void create_mixedCaseEmailWithSpaces_savesTrimmedLowercase() {
-        EmployeeRequest request = new EmployeeRequest("Ravi", "  Ravi@Company.COM ", "Engineering");
+        EmployeeRequest request = new EmployeeRequest("Ravi", "  Ravi@Company.COM ", "Engineering", null);
         when(employeeRepository.existsByEmail("ravi@company.com")).thenReturn(false);
         when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -77,13 +77,24 @@ class EmployeeServiceTest {
 
     @Test
     void create_sameEmailDifferentCase_throwsBusinessException() {
-        EmployeeRequest request = new EmployeeRequest("Ravi", "RAVI@Company.com", "Engineering");
+        EmployeeRequest request = new EmployeeRequest("Ravi", "RAVI@Company.com", "Engineering", null);
         when(employeeRepository.existsByEmail("ravi@company.com")).thenReturn(true);
 
         assertThatThrownBy(() -> employeeService.create(request))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("already exists");
         verify(employeeRepository, never()).save(any());
+    }
+
+    @Test
+    void create_withPhoneNumber_savesPhone() {
+        EmployeeRequest request = new EmployeeRequest("Ravi", "ravi@company.com", "Engineering", "9876543210");
+        when(employeeRepository.existsByEmail("ravi@company.com")).thenReturn(false);
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        EmployeeResponse response = employeeService.create(request);
+
+        assertThat(response.phoneNumber()).isEqualTo("9876543210");
     }
 
 }

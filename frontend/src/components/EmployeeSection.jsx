@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 
-const emptyForm = { name: '', email: '', department: '' };
+const emptyForm = { name: '', email: '', department: '', phoneNumber: '' };
 
 export default function EmployeeSection({ employees, runAction }) {
   const [form, setForm] = useState(emptyForm);
@@ -12,7 +12,8 @@ export default function EmployeeSection({ employees, runAction }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const ok = await runAction(() => api.createEmployee(form), 'Employee added');
+    const payload = { ...form, phoneNumber: form.phoneNumber.trim() || null };
+    const ok = await runAction(() => api.createEmployee(payload), 'Employee added');
     if (ok) setForm(emptyForm);
   }
 
@@ -24,12 +25,13 @@ export default function EmployeeSection({ employees, runAction }) {
         <input name="name" placeholder="Name" value={form.name} onChange={handleChange} />
         <input name="email" placeholder="Email" value={form.email} onChange={handleChange} />
         <input name="department" placeholder="Department" value={form.department} onChange={handleChange} />
+        <input name="phoneNumber" placeholder="Phone (10 digits, optional)" value={form.phoneNumber} onChange={handleChange} />
         <button type="submit">Add Employee</button>
       </form>
 
       <table>
         <thead>
-          <tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th><th>Leave Balance</th></tr>
+          <tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th><th>Phone</th><th>Leave Balance</th></tr>
         </thead>
         <tbody>
           {employees.map((emp) => (
@@ -38,6 +40,7 @@ export default function EmployeeSection({ employees, runAction }) {
               <td>{emp.name}</td>
               <td>{emp.email}</td>
               <td>{emp.department}</td>
+              <td>{emp.phoneNumber ?? '-'}</td>
               <td>{emp.leaveBalance}</td>
             </tr>
           ))}
