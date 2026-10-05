@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -123,5 +124,30 @@ public class LeaveService {
             throw new BusinessException("Only PENDING leave can be updated. Current status: " + leave.getStatus());
         }
         return leave;
+    }
+
+    /**
+     * PENDING or APPROVED leave can be cancelled before it starts.
+     * If it was APPROVED, the days are returned to the balance in the same transaction.
+     */
+    @Transactional
+    public LeaveResponse cancel(Long leaveId) {
+        LeaveRequest leave = findLeave(leaveId);
+
+        if (leave.getStatus() == LeaveStatus.REJECTED || leave.getStatus() == LeaveStatus.CANCELLED) {
+            throw new BusinessException("Cannot cancel a leave with status " + leave.getStatus());
+        }
+        if (leave.getStartDate().isBefore(LocalDate.now())) {
+            throw new BusinessException("Cannot cancel a leave that has already started");
+        }
+
+        if (leave.getStatus() == LeaveStatus.APPROVED) {
+            Employee employee = leave.getEmployee();
+            employee.setLeaveBalance(employee.getLeaveBalance() + leave.getDays());
+        }
+        leave.setStatus(LeaveStatus.CANCELLED);
+
+        log.info("Leave cancelled id={} employeeId={}", leaveId, leave.getEmployee().getId());
+        return LeaveResponse.from(leave);
     }
 }

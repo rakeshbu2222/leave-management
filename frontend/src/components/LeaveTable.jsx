@@ -33,6 +33,12 @@ export default function LeaveTable({ leaves, runAction }) {
                     </button>
                   </>
                 )}
+                {(leave.status === 'PENDING' || leave.status === 'APPROVED') && (
+                  <button className="secondary"
+                    onClick={() => runAction(() => api.cancelLeave(leave.id), 'Leave cancelled')}>
+                    Cancel
+                  </button>
+                )}
               </td>
             </tr>
           ))}

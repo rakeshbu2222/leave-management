@@ -154,4 +154,27 @@ class LeaveFlowIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void applyApproveThenCancel_restoresBalanceInDatabase() throws Exception {
+        LocalDate start = LocalDate.now().plusDays(3);
+        String body = """
+                {"employeeId": %d, "startDate": "%s", "endDate": "%s", "reason": "Vacation"}
+                """.formatted(employee.getId(), start, start.plusDays(4)); // 5 days
+
+        String json = mockMvc.perform(post("/api/leaves").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long leaveId = objectMapper.readTree(json).get("id").asLong();
+
+        mockMvc.perform(put("/api/leaves/" + leaveId + "/approve")).andExpect(status().isOk());
+        assertThat(employeeRepository.findById(employee.getId()).orElseThrow().getLeaveBalance()).isEqualTo(15);
+
+        mockMvc.perform(put("/api/leaves/" + leaveId + "/cancel"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+        assertThat(employeeRepository.findById(employee.getId()).orElseThrow().getLeaveBalance()).isEqualTo(20);
+
+        mockMvc.perform(put("/api/leaves/" + leaveId + "/cancel")).andExpect(status().isBadRequest());
+    }
 }

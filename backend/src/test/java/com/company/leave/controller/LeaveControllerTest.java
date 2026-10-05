@@ -195,4 +195,13 @@ class LeaveControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Leave request not found with id 99"));
     }
+
+    @Test
+    void cancel_businessRuleFails_returns400() throws Exception {
+        when(leaveService.cancel(5L)).thenThrow(new BusinessException("Cannot cancel a leave with status REJECTED"));
+
+        mockMvc.perform(put("/api/leaves/5/cancel"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Cannot cancel a leave with status REJECTED"));
+    }
 }

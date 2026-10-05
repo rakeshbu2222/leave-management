@@ -183,4 +183,65 @@ class LeaveServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Leave request not found with id 99");
     }
+
+    // ---------- cancel ----------
+
+    @Test
+    void cancel_pendingLeave_setsCancelledAndKeepsBalance() {
+        LeaveRequest leave = pendingLeave(3);
+        when(leaveRepository.findById(100L)).thenReturn(Optional.of(leave));
+
+        LeaveResponse response = leaveService.cancel(100L);
+
+        assertThat(response.status()).isEqualTo(LeaveStatus.CANCELLED);
+        assertThat(employee.getLeaveBalance()).isEqualTo(10);
+    }
+
+    @Test
+    void cancel_approvedLeave_restoresBalance() {
+        LeaveRequest leave = pendingLeave(3);
+        leave.setStatus(LeaveStatus.APPROVED);
+        employee.setLeaveBalance(7); // 3 days were deducted on approval
+        when(leaveRepository.findById(100L)).thenReturn(Optional.of(leave));
+
+        LeaveResponse response = leaveService.cancel(100L);
+
+        assertThat(response.status()).isEqualTo(LeaveStatus.CANCELLED);
+        assertThat(employee.getLeaveBalance()).isEqualTo(10);
+    }
+
+    @Test
+    void cancel_rejectedLeave_throwsBusinessException() {
+        LeaveRequest leave = pendingLeave(3);
+        leave.setStatus(LeaveStatus.REJECTED);
+        when(leaveRepository.findById(100L)).thenReturn(Optional.of(leave));
+
+        assertThatThrownBy(() -> leaveService.cancel(100L))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Cannot cancel a leave with status REJECTED");
+    }
+
+    @Test
+    void cancel_alreadyCancelled_throwsAndDoesNotRestoreBalanceTwice() {
+        LeaveRequest leave = pendingLeave(3);
+        leave.setStatus(LeaveStatus.CANCELLED);
+        when(leaveRepository.findById(100L)).thenReturn(Optional.of(leave));
+
+        assertThatThrownBy(() -> leaveService.cancel(100L))
+                .isInstanceOf(BusinessException.class);
+        assertThat(employee.getLeaveBalance()).isEqualTo(10);
+    }
+
+    @Test
+    void cancel_leaveAlreadyStarted_throwsAndKeepsStatus() {
+        LeaveRequest leave = pendingLeave(3);
+        leave.setStatus(LeaveStatus.APPROVED);
+        leave.setStartDate(LocalDate.now().minusDays(1));
+        when(leaveRepository.findById(100L)).thenReturn(Optional.of(leave));
+
+        assertThatThrownBy(() -> leaveService.cancel(100L))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("Cannot cancel a leave that has already started");
+        assertThat(leave.getStatus()).isEqualTo(LeaveStatus.APPROVED);
+    }
 }

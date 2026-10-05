@@ -16,3 +16,4 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
 .badge.pending { background: #fff4ce; }
 .badge.approved { background: #e6f4ea; }
 .badge.rejected { background: #fdecea; }
+.badge.cancelled { background: #eceff1; }
