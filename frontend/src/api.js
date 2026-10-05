@@ -25,4 +25,5 @@ export const api = {
   applyLeave: (leave) => request('/leaves', { method: 'POST', body: JSON.stringify(leave) }),
   approveLeave: (id) => request(`/leaves/${id}/approve`, { method: 'PUT' }),
   rejectLeave: (id) => request(`/leaves/${id}/reject`, { method: 'PUT' }),
+  cancelLeave: (id) => request(`/leaves/${id}/cancel`, { method: 'PUT' }),
 };

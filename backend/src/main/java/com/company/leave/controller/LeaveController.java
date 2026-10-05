@@ -50,4 +50,10 @@ public class LeaveController {
     public LeaveResponse reject(@PathVariable Long id) {
         return leaveService.reject(id);
     }
+
+    // PUT /api/leaves/10/cancel
+    @PutMapping("/{id}/cancel")
+    public LeaveResponse cancel(@PathVariable Long id) {
+        return leaveService.cancel(id);
+    }
 }
