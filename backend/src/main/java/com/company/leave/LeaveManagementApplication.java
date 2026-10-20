@@ -11,3 +11,4 @@ public class LeaveManagementApplication {
         SpringApplication.run(LeaveManagementApplication.class, args);
     }
 }
+

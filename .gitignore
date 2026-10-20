@@ -6,3 +6,4 @@ frontend/dist/
 .vscode/
 .DS_Store
 .env
+backend/test-output.txt
