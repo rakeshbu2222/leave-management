@@ -110,4 +110,9 @@
 * Swagger and MySQL verification completed.
 * LM-104 branch pushed and PR opened for review without merging.
 
+### Today
 
+* Added Actuator health/info and a prod profile.
+* Found and fixed NoResourceFoundException returning 500 instead of 404.
+* Isolated the tests on H2.
+* Debugged a Docker DNS issue: repo.maven.apache.org failed to resolve, fixed with fixed DNS servers in Docker Desktop.
